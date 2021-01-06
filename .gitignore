@@ -1,2 +1,5 @@
 env/
 __pycache__/
+environment.tar.gz
+
+*.swp
