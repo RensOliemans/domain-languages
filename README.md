@@ -11,3 +11,10 @@ For get-warc we use
 For simple-nlp we use
 
     spark-nlp==2.6.5 numpy venv-pack
+
+
+## Roadmap
+* Merge simple-nlp and get-warc
+* Load cdxtoolkit in spark
+* Do langdetect with sparknlp, distributed
+* Output results
