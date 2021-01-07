@@ -1,0 +1,14 @@
+cdx-toolkit==0.9.29
+certifi==2020.12.5
+chardet==4.0.0
+idna==2.10
+langdetect==1.0.8
+py4j==0.10.7
+pyspark==2.4.4
+requests==2.25.1
+selectolax==0.2.10
+six==1.15.0
+spark-nlp==2.6.5
+urllib3==1.26.2
+venv-pack==0.2.0
+warcio==1.7.4
