@@ -28,7 +28,7 @@ class ParsedItem:
 
     @property
     def to_detect(self):
-        return self.longest_sentence
+        return self.longest_sentence[0]
 
 
 class FilteredItem(ParsedItem):
