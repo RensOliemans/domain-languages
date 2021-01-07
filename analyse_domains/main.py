@@ -28,4 +28,5 @@ def main():
 	print(store)
 
 
-main()
+if __name__ == '__main__':
+	main()
