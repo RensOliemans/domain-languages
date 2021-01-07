@@ -1,1 +1,1 @@
-from detect.langdetector import LangdetectDetector as Detector
+from detect.sparknlp_detector import SparkNLPDetector as Detector
