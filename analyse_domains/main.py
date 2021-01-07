@@ -3,7 +3,7 @@ import logging
 import config
 from fetch import Fetcher
 from item import FilteredItem
-from detect import LangdetectDetector as Detector
+from detect import Detector
 from store import Store
 
 logging.basicConfig(level=config.LOGLEVEL)

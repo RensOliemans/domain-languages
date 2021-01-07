@@ -1,16 +1,8 @@
 import logging
-from abc import ABC, abstractmethod
 
 import langdetect
 
-
-class AbstractDetector(ABC):
-    def __init__(self):
-        pass
-
-    @abstractmethod
-    def detect(self, item):
-        pass
+from detect.abstractdetect import AbstractDetector
 
 
 class LangdetectDetector(AbstractDetector):
