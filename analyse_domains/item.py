@@ -21,14 +21,14 @@ class ParsedItem:
         return self._parsed
 
     @property
-    def longest_sentence(self):
+    def longest_sentences(self):
         if self._longest_sentence is None:
             self._longest_sentence = get_longest_sentence(self.parsed)
         return self._longest_sentence
 
     @property
     def to_detect(self):
-        return self.longest_sentence[0]
+        return self.longest_sentences[-1]
 
 
 class FilteredItem(ParsedItem):
