@@ -22,6 +22,7 @@ def main():
 			continue
 
 		language = detector.detect(item)
+		logging.info('Language: %s', language)
 		store.add(language)
 
 	print(store)
