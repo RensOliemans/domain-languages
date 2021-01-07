@@ -6,7 +6,6 @@ from item import FilteredItem
 from detect import Detector
 from store import Store
 
-logging.basicConfig(level=config.LOGLEVEL)
 
 
 def main():
