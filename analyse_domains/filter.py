@@ -1,6 +1,6 @@
 from selectolax.parser import HTMLParser
 
-from config import MIN_AMOUNT
+from config import MIN_AMOUNT, MIN_LENGTH
 
 
 def get_text_from_html(html):
@@ -26,4 +26,4 @@ def get_longest_sentence(text):
 def filter_text(text):
     longest_lines = get_longest_sentence(text)
     text = text.split('\n')
-    return len(text) < MIN_AMOUNT or any([len(line) < 30 for line in longest_lines])
+    return len(text) < MIN_AMOUNT or any([len(line) < MIN_LENGTH for line in longest_lines])

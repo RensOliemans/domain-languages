@@ -2,9 +2,10 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
-URL = '*.nl'
-LIMIT = 15
+URL = '*.fr'
+LIMIT = 50
 MIN_AMOUNT = 5
+MIN_LENGTH = 100
 APPNAME = 'NLP'
 SPARK_LOGLEVEL = "ERROR"
 PIPELINE = ('detect_language_20', 'xx')
