@@ -26,6 +26,10 @@ class ParsedItem:
             self._longest_sentence = get_longest_sentence(self.parsed)
         return self._longest_sentence
 
+    @property
+    def to_detect(self):
+        return self.longest_sentence
+
 
 class FilteredItem(ParsedItem):
     def __init__(self, item, parser=get_text_from_html, filters=None):

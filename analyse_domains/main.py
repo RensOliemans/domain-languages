@@ -21,7 +21,7 @@ def main():
 		if item.filter_out:
 			continue
 
-		language = detector.detect(item)
+		language = detector.detect(item.to_detect)
 		logging.info('Language: %s', language)
 		store.add(language)
 
