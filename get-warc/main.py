@@ -3,7 +3,7 @@ import logging
 import config
 from fetch import Fetcher
 from item import FilteredItem
-from detect import detect
+from detect import LangdetectDetector as Detector
 from store import Store
 
 logging.basicConfig(level=config.LOGLEVEL)
@@ -11,6 +11,7 @@ logging.basicConfig(level=config.LOGLEVEL)
 
 def main():
 	fetcher = Fetcher(config.URL, config.LIMIT)
+	detector = Detector()
 	store = Store()
 
 	for i, item in enumerate(fetcher.objects):
@@ -20,7 +21,7 @@ def main():
 		if item.filter_out:
 			continue
 
-		language = detect(item)
+		language = detector.detect(item)
 		store.add(language)
 
 	print(store)
