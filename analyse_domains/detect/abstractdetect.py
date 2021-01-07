@@ -1,10 +1,8 @@
 import logging
 from abc import ABC, abstractmethod
 
-import langdetect
-
 
 class AbstractDetector(ABC):
     @abstractmethod
     def detect(self, item):
-        pass
+        logging.info('Text to detect: %s', item)

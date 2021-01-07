@@ -21,6 +21,6 @@ class SparkNLPDetector(AbstractDetector):
         self._pipeline = PretrainedPipeline(config.PIPELINE[0], lang=config.PIPELINE[1])
 
     def detect(self, item):
-        logging.debug('Text to detect: %s', item)
+        super().detect(item)
         return self._pipeline.annotate(item)['language'][0]
 
