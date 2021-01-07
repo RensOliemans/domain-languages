@@ -1,8 +1,7 @@
 from langdetect import detect
 
-from get_data import Fetcher
-from parse_html import get_text_selectolax
-from extract import filter_text, get_longest_sentence
+from fetch import Fetcher
+from filter import filter_text, get_longest_sentence, get_text_from_html
 
 URL = '*.nl'
 
@@ -17,7 +16,7 @@ def main():
 		url = item.data['url']
 		print("url {}: {}".format(i, url))
 
-		parsed = get_text_selectolax(item.content)
+		parsed = get_text_from_html(item.content)
 		if parsed is None or filter_text(parsed):
 			continue
 
