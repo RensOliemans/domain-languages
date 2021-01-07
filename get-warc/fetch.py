@@ -1,5 +1,7 @@
 import cdx_toolkit
 
+from item import Item
+
 
 class Fetcher:
     def __init__(self, url, limit=100, source='cc'):
@@ -10,4 +12,4 @@ class Fetcher:
     @property
     def objects(self):
         for obj in self._cdx.iter(self.url, limit=self.limit, filter=["!~robots.txt", "mime:text/html"]):
-            yield obj
+            yield Item(obj)

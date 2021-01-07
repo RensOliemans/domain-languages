@@ -1,36 +1,29 @@
-from langdetect import detect
+import logging
 
+import config
 from fetch import Fetcher
-from filter import filter_text, get_longest_sentence, get_text_from_html
+from item import FilteredItem
+from detect import detect
+from store import Store
 
-URL = '*.nl'
+logging.basicConfig(level=config.LOGLEVEL)
 
 
 def main():
-	print('Fetching items')
-	fetcher = Fetcher(URL, 15)
-
-	languages = dict()
+	fetcher = Fetcher(config.URL, config.LIMIT)
+	store = Store()
 
 	for i, item in enumerate(fetcher.objects):
-		url = item.data['url']
-		print("url {}: {}".format(i, url))
+		logging.info('url %s: %s', i, item.url)
 
-		parsed = get_text_from_html(item.content)
-		if parsed is None or filter_text(parsed):
+		item = FilteredItem(item)
+		if item.filter_out:
 			continue
 
-		longest_sentences = get_longest_sentence(parsed)
-		print(longest_sentences)
-		language = detect(' '.join(longest_sentences))
-		print(f"language: {language}\n")
+		language = detect(item)
+		store.add(language)
 
-		if language in languages:
-			languages[language] += 1
-		else:
-			languages[language] = 1
-
-	print(languages)
+	print(store)
 
 
 main()
