@@ -14,7 +14,7 @@ For simple-nlp we use
 
 
 ## Roadmap
-* ~Merge simple-nlp and get-warc~
+* ~~Merge simple-nlp and get-warc~~
 * Load cdxtoolkit in spark
 * Do langdetect with sparknlp, distributed
 * Output results
