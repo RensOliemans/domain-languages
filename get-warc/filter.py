@@ -1,6 +1,6 @@
 from selectolax.parser import HTMLParser
 
-AMOUNT = 5
+from config import MIN_AMOUNT
 
 
 def get_text_from_html(html):
@@ -20,10 +20,10 @@ def get_text_from_html(html):
 
 def get_longest_sentence(text):
     text = text.replace('\t', '')
-    return sorted(map(lambda t: t.strip(), text.split('\n')), key=len)[-AMOUNT:]
+    return sorted(map(lambda t: t.strip(), text.split('\n')), key=len)[-MIN_AMOUNT:]
 
 
 def filter_text(text):
     longest_lines = get_longest_sentence(text)
     text = text.split('\n')
-    return len(text) < AMOUNT or any([len(line) < 30 for line in longest_lines])
+    return len(text) < MIN_AMOUNT or any([len(line) < 30 for line in longest_lines])
