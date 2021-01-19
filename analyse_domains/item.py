@@ -21,6 +21,10 @@ class ParsedItem:
         return self._parsed
 
     @property
+    def url(self):
+        return self.item.url
+
+    @property
     def longest_sentences(self):
         if self._longest_sentence is None:
             self._longest_sentence = get_longest_sentence(self.parsed)
