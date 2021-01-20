@@ -15,10 +15,10 @@ MIN_AMOUNT = 5
 MIN_LENGTH = 100
 APPNAME = 'get CC data'
 
-spark = SparkSession.builder.appName(APPNAME).getOrCreate()
+
 sc = SparkContext(appName=APPNAME)
 sc.setLogLevel("ERROR")
-
+spark = SparkSession.builder.appName(APPNAME).getOrCreate()
 
 def get_text_from_html(html):
     tree = HTMLParser(html)
