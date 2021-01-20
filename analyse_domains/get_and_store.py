@@ -122,7 +122,7 @@ def fetch(country):
             if not item.filter_out]
 
     schema = ['url', 'content', 'country']
-    df = spark.createDataFrame(sc.parallelize(data, numSlices=None), schema)
+    df = spark.createDataFrame(sc.parallelize(data, numSlices=LIMIT / 10), schema)
     df.write.format('parquet').mode('overwrite').option('header', 'true').csv(country)
 
     logging.info('Storing %s items for url %s. File: %s', len(data), url, country)
