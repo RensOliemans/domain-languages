@@ -1,5 +1,5 @@
 import logging
-from multiprocessing import Pool
+from multiprocessing.pool import ThreadPool
 
 import cdx_toolkit
 from selectolax.parser import HTMLParser
@@ -130,7 +130,7 @@ def fetch(country):
 
 def main():
     COUNTRIES = ['de', 'fr', 'es', 'uk', 'se', 'it', 'ru', 'gr']
-    p = Pool(8)
+    p = ThreadPool(8)
     p.map(fetch, COUNTRIES)
     p.close()
     p.join()
