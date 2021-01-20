@@ -19,10 +19,12 @@ LANGUAGES = ['bg', 'cs', 'de', 'el', 'en', 'es', 'fi', 'fr', 'hr', 'hu',
              'it', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sv', 'tr', 'uk']
 COUNTRY = 'fr'
 df = spark.read.option('header', 'true').csv('small_' + COUNTRY)
-rdd = df.rdd \
-    .map(lambda ccu: (ccu[1], pipeline.annotate(ccu[0]['language'][0]))) \
-    .map(lambda cl: (cl[0], {lang: 1 if lang == cl[1] else 0 for lang in LANGUAGES}))
 
+rdd = df.rdd
+print(rdd.take(10))
+rdd = rdd.map(lambda ccu: (ccu[1], pipeline.annotate(ccu[0]['language'][0])))
+print(rdd.take(10))
+rdd = rdd.map(lambda cl: (cl[0], {lang: 1 if lang == cl[1] else 0 for lang in LANGUAGES}))
 print(rdd.take(10))
 
 rdd = rdd.reduceByKey(lambda a, b: {c: a[c] + b[c] for c in LANGUAGES})
