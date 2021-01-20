@@ -24,6 +24,8 @@ rdd = df.rdd \
     .map(lambda cl: (cl[0], {lang: 1 if lang == cl[1] else 0 for lang in LANGUAGES})) \
     .reduceByKey(lambda a, b: {c: a[c] + b[c] for c in LANGUAGES})
 
+print(rdd.collect())
+
 # tuple unpacking
 # rdd = df.rdd \
 #     .map(lambda (content, country, url): (country, pipeline.annotate(content)['language'][0])) \
