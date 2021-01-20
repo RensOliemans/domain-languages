@@ -4,6 +4,7 @@ from multiprocessing import Pool
 import cdx_toolkit
 from selectolax.parser import HTMLParser
 from pyspark import SparkContext
+from pyspark.sql import SparkSession
 
 logging.basicConfig(level=logging.INFO)
 
@@ -12,8 +13,10 @@ logging.basicConfig(level=logging.INFO)
 LIMIT = int(10e1)
 MIN_AMOUNT = 5
 MIN_LENGTH = 100
+APPNAME = 'get CC data'
 
-sc = SparkContext(appName='get CC Data')
+spark = SparkSession.builder.appName(APPNAME).getOrCreate()
+sc = SparkContext(appName=APPNAME)
 sc.setLogLevel("ERROR")
 
 
