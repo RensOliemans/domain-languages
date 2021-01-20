@@ -20,6 +20,12 @@ LANGUAGES = ['bg', 'cs', 'de', 'el', 'en', 'es', 'fi', 'fr', 'hr', 'hu',
 COUNTRY = 'fr'
 df = spark.read.option('header', 'true').csv('small_' + COUNTRY)
 rdd = df.rdd \
-    .map(lambda (content, country, url): (country, pipeline.annotate(content)['language'][0])) \
-    .map(lambda (country, language): (country, {lang: 1 if lang == language else 0 for lang in LANGUAGES})) \
+    .map(lambda ccu: (ccu[1], pipeline.annotate(ccu[0]['language'][0]))) \
+    .map(lambda cl: (cl[0], {lang: 1 if lang == cl[1] else 0 for lang in LANGUAGES})) \
     .reduceByKey(lambda a, b: {c: a[c] + b[c] for c in LANGUAGES})
+
+# tuple unpacking
+# rdd = df.rdd \
+#     .map(lambda (content, country, url): (country, pipeline.annotate(content)['language'][0])) \
+#     .map(lambda (country, language): (country, {lang: 1 if lang == language else 0 for lang in LANGUAGES})) \
+#     .reduceByKey(lambda a, b: {c: a[c] + b[c] for c in LANGUAGES})
