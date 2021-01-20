@@ -4,7 +4,7 @@ from multiprocessing import Pool
 import cdx_toolkit
 from selectolax.parser import HTMLParser
 from pyspark import SparkContext
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, Row
 
 logging.basicConfig(level=logging.INFO)
 
@@ -123,7 +123,7 @@ def fetch(country):
 
     schema = ['url', 'content', 'country']
     filename = 'small_' + country
-    df = spark.createDataFrame(sc.parallelize(data, numSlices=LIMIT / 10), schema)
+    df = spark.createDataFrame(sc.parallelize((Row(**x) for x in data), numSlices=LIMIT / 10), schema)
     df.write.format('parquet').mode('overwrite').option('header', 'true').csv(filename)
 
     logging.info('Storing %s items for url %s. File: %s', len(data), url, filename)
