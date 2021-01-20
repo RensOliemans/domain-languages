@@ -1,12 +1,15 @@
 import logging
+from multiprocessing import Pool
 
 import cdx_toolkit
 from selectolax.parser import HTMLParser
 from pyspark import SparkContext
 
+logging.basicConfig(level=logging.INFO)
 
-URL = '*.fr'
-LIMIT = 50
+# COUNTRY = 'fr'
+# URL = f'*.{COUNTRY}'
+LIMIT = int(10e3)
 MIN_AMOUNT = 5
 MIN_LENGTH = 100
 
@@ -98,22 +101,39 @@ class Fetcher:
 
 def _get_filtered_items(objects):
     for i, item in enumerate(objects):
-        logging.info('url %s: %s', i, item.url)
+        if i % 100 == 0:
+            logging.info('url %s: %s', i, item.url)
         yield FilteredItem(item)
 
 
-def main():
-    fetcher = Fetcher(URL, LIMIT, source='https://index.commoncrawl.org/CC-MAIN-2020-50-index',
+def fetch(country):
+    url = f'*.{country}'
+
+    logging.info('started fetching for country %s', country)
+
+    fetcher = Fetcher(url, LIMIT, source='https://index.commoncrawl.org/CC-MAIN-2020-50-index',
                       warc_url_prefix='https://commoncrawl.s3.amazonaws.com')
 
     data = [{'url': item.url, 'content': item.to_detect}
             for item in _get_filtered_items(fetcher.objects)
             if not item.filter_out]
 
-    filename = f'{LIMIT}.{URL.split(".")[-1]}'
+    filename = f'{LIMIT}.{country}'
     location = f'/user/s1740326/{filename}'
 
-    logging.info('Storing %s items for url %s. File: %s', len(data), URL, location)
+    schema = ['url', 'content']
+    df = spark.createDataFrame(sc.parallelize(data), schema)
+    df.write.format('parquet').mode('overwrite').option('header', 'true').csv(country)
+
+    logging.info('Storing %s items for url %s. File: %s', len(data), url, location)
+
+
+def main():
+    COUNTRIES = ['de', 'fr', 'es', 'uk', 'se', 'it', 'ru', 'gr']
+    p = Pool(4)
+    p.map(fetch, COUNTRIES)
+    p.close()
+    p.join()
 
 
 if __name__ == '__main__':
