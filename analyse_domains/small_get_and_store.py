@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO)
 
 # COUNTRY = 'fr'
 # URL = f'*.{COUNTRY}'
-LIMIT = int(10e3)
+LIMIT = int(10e1)
 MIN_AMOUNT = 5
 MIN_LENGTH = 100
 
@@ -101,7 +101,7 @@ class Fetcher:
 
 def _get_filtered_items(objects):
     for i, item in enumerate(objects):
-        if i % 100 == 0:
+        if i % 10 == 0:
             logging.info('url %s: %s', i, item.url)
         yield FilteredItem(item)
 
@@ -119,10 +119,11 @@ def fetch(country):
             if not item.filter_out]
 
     schema = ['url', 'content']
+    filename = 'small_' + country
     df = spark.createDataFrame(sc.parallelize(data), schema)
-    df.write.format('parquet').mode('overwrite').option('header', 'true').csv(country)
+    df.write.format('parquet').mode('overwrite').option('header', 'true').csv(filename)
 
-    logging.info('Storing %s items for url %s. File: %s', len(data), url, country)
+    logging.info('Storing %s items for url %s. File: %s', len(data), url, filename)
 
 
 def main():
