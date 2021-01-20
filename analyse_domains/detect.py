@@ -21,12 +21,9 @@ COUNTRY = 'fr'
 df = spark.read.option('header', 'true').csv('small_' + COUNTRY)
 
 rdd = df.rdd
-print(rdd.take(1))
-print(rdd.take(1)[0])
-
 print(pipeline.annotate(rdd.take(1)[0][0]))
 print(pipeline.annotate(rdd.take(1)[0][0])['language'][0])
-rdd = rdd.map(lambda ccu: (ccu[1], pipeline.annotate(ccu[0]['language'][0])))
+rdd = rdd.map(lambda ccu: (ccu[1], pipeline.annotate(ccu[0])['language'][0]))
 print(rdd.take(10))
 rdd = rdd.map(lambda cl: (cl[0], {lang: 1 if lang == cl[1] else 0 for lang in LANGUAGES}))
 print(rdd.take(10))
