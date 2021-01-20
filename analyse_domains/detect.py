@@ -4,7 +4,7 @@ from pyspark.sql import SparkSession
 import sparknlp
 from sparknlp.pretrained import PretrainedPipeline
 
-# from langdetect import detect
+from langdetect import detect
 
 APPNAME = 'detect-language'
 PIPELINE = ('detect_language_20', 'xx')
@@ -23,8 +23,8 @@ COUNTRY = 'fr'
 df = spark.read.option('header', 'true').csv('small_' + COUNTRY)
 
 
-def detect(content):
-    return pipeline.annotate(content)['language'][0]
+# def detect(content):
+#     return pipeline.annotate(content)['language'][0]
 
 
 rdd = df.rdd
