@@ -23,21 +23,13 @@ COUNTRY = 'fr'
 df = spark.read.option('header', 'true').csv('small_' + COUNTRY)
 
 
-def detect(content):
-    return pipeline.annotate(content)['language'][0]
+# def detect(content):
+#     return pipeline.annotate(content)['language'][0]
 
 
 rdd = df.rdd
-x = rdd.take(1)[0]
-print(x)
-print(detect(x[0]))
-print(type(detect(x[0])))
 rdd = rdd.map(lambda ccu: (ccu[1], detect(ccu[0])))
-# rdd = rdd.map(lambda ccu: (ccu[1], pipeline.annotate(ccu[0])['language'][0]))
-print(rdd.take(10))
 rdd = rdd.map(lambda cl: (cl[0], {lang: 1 if lang == cl[1] else 0 for lang in LANGUAGES}))
-print(rdd.take(10))
-
 rdd = rdd.reduceByKey(lambda a, b: {c: a[c] + b[c] for c in LANGUAGES})
 
 print(rdd.collect())
