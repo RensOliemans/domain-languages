@@ -117,11 +117,11 @@ def fetch(country):
     fetcher = Fetcher(url, LIMIT, source='https://index.commoncrawl.org/CC-MAIN-2020-50-index',
                       warc_url_prefix='https://commoncrawl.s3.amazonaws.com')
 
-    data = [{'url': item.url, 'content': item.to_detect}
+    data = [{'url': item.url, 'content': item.to_detect, 'country': country}
             for item in _get_filtered_items(fetcher.objects)
             if not item.filter_out]
 
-    schema = ['url', 'content']
+    schema = ['url', 'content', 'country']
     filename = 'small_' + country
     df = spark.createDataFrame(sc.parallelize(data), schema)
     df.write.format('parquet').mode('overwrite').option('header', 'true').csv(filename)
