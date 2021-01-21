@@ -36,7 +36,7 @@ def main(country):
     rdd = rdd.map(lambda cl: (cl[0], {lang: 1 if lang == cl[1] else 0 for lang in LANGUAGES}))
     rdd = rdd.reduceByKey(lambda a, b: {c: a[c] + b[c] for c in LANGUAGES})
 
-    print(f'For country: {country}, results: {rdd.collect}')
+    print(f'For country: {country}, results: {rdd.collect()}')
 
 
 if __name__ == '__main__':
