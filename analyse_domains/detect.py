@@ -26,7 +26,7 @@ LANGUAGES = ['bg', 'cs', 'de', 'el', 'en', 'es', 'fi', 'fr', 'hr', 'hu',
 def main(country):
     print('country')
     try:
-        df = spark.read.option('header', 'true').csv(country)
+        df = spark.read.option('header', 'true').csv('small_' + country)
     except Exception:
         print(f'No files found under country {country}')
         return
