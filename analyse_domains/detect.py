@@ -24,7 +24,7 @@ LANGUAGES = ['bg', 'cs', 'de', 'el', 'en', 'es', 'fi', 'fr', 'hr', 'hu',
 
 
 def main(country):
-    print('country')
+    print(f'Starting on country {country}')
     try:
         df = spark.read.option('header', 'true').csv(country)
     except Exception:
