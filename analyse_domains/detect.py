@@ -16,7 +16,7 @@ sc.setLogLevel("ERROR")
 spark = SparkSession.builder.appName(APPNAME).getOrCreate()
 spark2 = sparknlp.start()
 
-pipeline = PretrainedPipeline(PIPELINE[0], lang=PIPELINE[1])
+# pipeline = PretrainedPipeline(PIPELINE[0], lang=PIPELINE[1])
 
 COUNTRIES = ['de', 'fr', 'es', 'uk', 'se', 'it', 'ru', 'gr']
 LANGUAGES = ['bg', 'cs', 'de', 'el', 'en', 'es', 'fi', 'fr', 'hr', 'hu',
@@ -26,7 +26,7 @@ LANGUAGES = ['bg', 'cs', 'de', 'el', 'en', 'es', 'fi', 'fr', 'hr', 'hu',
 def main(country):
     print('country')
     try:
-        df = spark.read.option('header', 'true').csv('small_' + country)
+        df = spark.read.option('header', 'true').csv(country)
     except Exception:
         print(f'No files found under country {country}')
         return
