@@ -114,7 +114,7 @@ def fetch(country):
 
     logging.info('started fetching for country %s', country)
 
-    fetcher = Fetcher(url, LIMIT, source='https://index.commoncrawl.org/CC-MAIN-2020-50-index',
+    fetcher = Fetcher(url, LIMIT, source='https://index.commoncrawl.org/CC-MAIN-2015-14-index',
                       warc_url_prefix='https://commoncrawl.s3.amazonaws.com')
 
     data = [{'url': item.url, 'content': item.to_detect, 'country': country}
@@ -122,10 +122,14 @@ def fetch(country):
             if not item.filter_out]
 
     schema = ['url', 'content', 'country']
-    df = spark.createDataFrame(sc.parallelize((Row(**x) for x in data), numSlices=LIMIT / 10), schema)
-    df.write.format('parquet').mode('overwrite').option('header', 'true').csv(country)
+    try:
+        df = spark.createDataFrame(sc.parallelize((Row(**x) for x in data), numSlices=LIMIT / 10), schema)
+        df.write.format('parquet').mode('overwrite').option('header', 'true').csv(country)
 
-    logging.info('Storing %s items for url %s. File: %s', len(data), url, country)
+        logging.info('Storing %s items for url %s. File: %s', len(data), url, country)
+    except Exception as e:
+        logging.info('Couldnt store for country %s, got error %s', country, e)
+        return
 
 
 def main():
