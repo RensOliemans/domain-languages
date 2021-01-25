@@ -4,4 +4,4 @@ __pycache__/
 *.pyc
 environment.tar.gz
 
-*.swp
+*.idx
