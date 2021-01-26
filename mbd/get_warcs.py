@@ -81,6 +81,8 @@ for instance in instances:
     # Load CSV
     df = spark.read.csv('{}--*.gz'.format(instance), sep=' ')
 
+    df = df.repartition(25)
+
     # Take relevant columns and rename
     df = df.select('_c0', '_c3', '_c5', '_c13', '_c15', '_c17') \
         .withColumnRenamed('_c0', 'urlinfo') \
