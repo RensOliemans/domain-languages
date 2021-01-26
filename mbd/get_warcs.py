@@ -75,5 +75,5 @@ for instance in instances:
         .withColumn('length', df.length.cast('int')) \
         .withColumn('offset', df.offset.cast('int'))
 
-    df.write.csv('output/{}-{}'.format(LANGUAGE, instance))
+    df.write.csv('output/{}-{}'.format(instance.split('/')[1], LANGUAGE))
 
