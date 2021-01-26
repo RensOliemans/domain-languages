@@ -98,9 +98,9 @@ def download_files(pattern):
     print('Getting file urls, possibly downloading cluster files for it')
     file_urls_per_instance = get_file_urls(prefix, instances, '{},'.format(pattern))
 
+    print('Getting gz_files for instance')
     for instance in file_urls_per_instance:
-        print('Getting gz_files for instance %s' % instance)
-        gz_filenames = get_gz_files(file_urls_per_instance)
+        gz_filenames = get_gz_files(instance)
         print(list(gz_filenames))
 
 
