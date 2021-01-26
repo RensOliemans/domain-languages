@@ -26,6 +26,14 @@ udf_tld = F.udf(convert_to_tld, StringType())
 udf_strip_dq = F.udf(strip_dq, StringType())
 
 
+MAPPING = {
+    '2020-50': {
+        'fr': ['00190', '00191', '00192', '00193', '00194'],
+        'se': ['00277', '00278', '00279']
+    }
+}
+
+
 instances = ['2020-50']
 instances = ['gzs/CC-MAIN-{}'.format(i) for i in instances]
 
@@ -44,13 +52,15 @@ for instance in instances:
         .withColumnRenamed('_c15', 'offset') \
         .withColumnRenamed('_c17', 'filename')
 
+    # Filter null values
+    df = df.na.drop()
+
     # Filter language
     df = df.filter((df.urlinfo.startswith('{},'.format(LANGUAGE))))
 
     # Strip double quotes
     df = df \
         .withColumn('url', udf_strip_dq(df.url)) \
-        .withColumn('mime', udf_strip_dq(df.mime)) \
         .withColumn('length', udf_strip_dq(df.length)) \
         .withColumn('offset', udf_strip_dq(df.offset)) \
         .withColumn('filename', udf_strip_dq(df.filename))
