@@ -83,6 +83,11 @@ def get_gz_files(file_urls):
         instance = parts[-3]
         out_filename = 'gzs/{}--{}'.format(instance, filename)
 
+        if os.path.isfile(out_filename):
+            print('File %s already exists' % out_filename)
+            yield out_filename
+            continue
+
         with requests.get(file_url, stream=True) as r:
             print('Downloading file %s' % file_url)
             r.raise_for_status()
