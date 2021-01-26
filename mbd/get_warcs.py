@@ -79,9 +79,7 @@ for instance in instances:
     print('Using instance %s' % instance)
 
     # Load CSV
-    df = spark.read.csv('{}--*.gz'.format(instance), sep=' ')
-
-    df = df.repartition(25)
+    df = spark.read.csv('{}--*.gz'.format(instance), sep=' ').repartition(100)
 
     # Take relevant columns and rename
     df = df.select('_c0', '_c3', '_c5', '_c13', '_c15', '_c17') \
@@ -115,5 +113,6 @@ for instance in instances:
         .withColumn('length', df.length.cast('int')) \
         .withColumn('offset', df.offset.cast('int'))
 
+    print(df.rdd.getNumPartitions())
     df.write.format('parquet').mode('overwrite').option('header', 'true').csv('output/{}-{}'.format(instance.split('/')[1], LANGUAGE))
 
