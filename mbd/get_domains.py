@@ -61,7 +61,7 @@ def get_file_urls(prefix, instances, pattern):
 
     for instance in instances:
         print('Getting urls from cluster %s with pattern %s' % (instance, pattern))
-        dg = DomainGetter(prefix, instance, 'clusters/cluster-{}.idx'.format(instances))
+        dg = DomainGetter(prefix, instance, 'clusters/cluster-{}.idx'.format(instance))
         yield dg.get_urls(pattern)
 
 
