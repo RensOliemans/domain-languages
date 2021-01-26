@@ -80,7 +80,7 @@ def get_gz_files(file_urls):
     for file_url in file_urls:
         parts = file_url.split('/')
         filename = parts[-1]
-        instance = parts[-2]
+        instance = parts[-3]
         out_filename = 'gzs/{}--{}'.format(instance, filename)
 
         with requests.get(file_url, stream=True) as r:
