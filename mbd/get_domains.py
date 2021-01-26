@@ -2,6 +2,8 @@ import os
 
 import requests
 
+LANGUAGE = 'se'
+
 # from pyspark import SparkContext
 # from pyspark.sql import SparkSession
 #
@@ -111,4 +113,4 @@ def download_files(pattern):
 
 
 if __name__ == '__main__':
-    download_files('fr')
+    download_files(LANGUAGE)
