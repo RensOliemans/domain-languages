@@ -61,7 +61,7 @@ def get_file_urls(prefix, instances, pattern):
 
     for instance in instances:
         print('Getting urls from cluster %s with pattern %s' % (instance, pattern))
-        dg = DomainGetter(prefix, instance, 'clusters/cluster-{}}.idx'.format(instances))
+        dg = DomainGetter(prefix, instance, 'clusters/cluster-{}.idx'.format(instances))
         yield dg.get_urls(pattern)
 
 
@@ -73,7 +73,7 @@ def save_cluster_files(prefix, instances):
             print('Saving file %s' % full_instance)
             cfg.save()
         else:
-            print('File %s already existed' % full_instance)
+            print('File %s already exists' % full_instance)
 
 
 def get_gz_files(file_urls):
