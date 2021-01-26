@@ -53,7 +53,7 @@ class ClusterFileSaver:
 
     @staticmethod
     def get_url(prefix, instance):
-        return '{}cc-index/collections/{}/index/cluster.idx'.format(prefix, instance)
+        return '{}cc-index/collections/{}/indexes/cluster.idx'.format(prefix, instance)
 
 
 def get_file_urls(prefix, instances, pattern):
