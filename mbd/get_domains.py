@@ -81,8 +81,8 @@ def get_gz_files(file_urls):
         parts = file_url.split('/')
         filename = parts[-1]
         instance = parts[-2]
-        out_filename = '{}--{}'.format(instance, filename)
-        
+        out_filename = 'gzs/{}--{}'.format(instance, filename)
+
         file_url = 'CC-MAIN-{}'.format(file_urls)
         with requests.get(file_url, stream=True) as r:
             print('Downloading file %s' % file_url)
