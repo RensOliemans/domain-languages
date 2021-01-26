@@ -83,7 +83,7 @@ def get_gz_files(file_urls):
         instance = parts[-2]
         out_filename = 'gzs/{}--{}'.format(instance, filename)
 
-        file_url = 'CC-MAIN-{}'.format(file_urls)
+        file_url = 'CC-MAIN-{}'.format(file_url)
         with requests.get(file_url, stream=True) as r:
             print('Downloading file %s' % file_url)
             r.raise_for_status()
