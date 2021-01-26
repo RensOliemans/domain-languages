@@ -27,7 +27,7 @@ udf_strip_dq = F.udf(strip_dq, StringType())
 
 
 instances = ['2020-50']
-instances = ['gz/CC-MAIN-{}'.format(i) for i in instances]
+instances = ['gzs/CC-MAIN-{}'.format(i) for i in instances]
 
 for instance in instances:
     print('Using instance %s' % instance)
