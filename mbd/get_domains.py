@@ -1,3 +1,5 @@
+import os
+
 import requests
 
 
@@ -23,7 +25,7 @@ class DomainGetter:
         return line.split('\t')[1]
 
 
-class FileSaver:
+class ClusterFileSaver:
     def __init__(self, prefix, instance, location, filename):
         self.url = self.get_url(prefix, instance)
         self.file_location = location + filename
@@ -36,20 +38,41 @@ class FileSaver:
                     f.write(chunk)
         return self.file_location
 
+    @property
+    def exists(self):
+        return os.path.isfile(self.file_location)
+
     @staticmethod
     def get_url(prefix, instance):
         return '{}cc-index/collections/{}/index/cluster.idx'.format(prefix, instance)
 
 
-def main():
-    prefix = 'https://commoncrawl.s3.amazonaws.com/'
-    instance = 'CC-MAIN-2020-50'
-    fs = FileSaver(prefix, instance, 'clusters/', 'cluster-2020-50.idx')
-    fs.save()
+def get_file_urls(prefix, instances, pattern):
+    save_cluster_files(prefix, instances)
 
-    dg = DomainGetter(prefix, instance, 'clusters/cluster-2020-50.idx')
-    print(list(dg.get_urls('fr')))
+    for instance in instances:
+        print 'Getting urls of cluster %s' % instance
+        dg = DomainGetter(prefix, instance, 'clusters/cluster-{}}.idx'.format(instances))
+        yield dg.get_urls(pattern)
+
+
+def save_cluster_files(prefix, instances):
+    for instance in instances:
+        full_instance = 'CC-MAIN-' + instance
+        cfg = ClusterFileSaver(prefix, full_instance, 'clusters/', 'cluster-{}.idx'.format(instance))
+        if not cfg.exists:
+            print 'Saving file %s' % full_instance
+            cfg.save()
+
+
+def download_files(pattern):
+    prefix = 'https://commoncrawl.s3.amazonaws.com/'
+    instances = ['2020-24', '2018-22', '2017-22', '2016-22']
+
+    file_urls = get_file_urls(prefix, instances, '{},'.format(pattern))
+    
+
 
 
 if __name__ == '__main__':
-    main()
+    download_files('fr')
