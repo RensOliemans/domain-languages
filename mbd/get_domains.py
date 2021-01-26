@@ -19,7 +19,7 @@ class DomainGetter:
         self.cluster_filename = cluster_filename
 
     def get_urls(self, pattern):
-        urls = ('{}cc-index/collections/{}/indexes/{}'
+        urls = ('{}cc-index/collections/CC-MAIN-{}/indexes/{}'
                 .format(self.prefix, self.instance, f)
                 for f in self._get_filenames(pattern))
         for url in urls:
@@ -83,7 +83,6 @@ def get_gz_files(file_urls):
         instance = parts[-2]
         out_filename = 'gzs/{}--{}'.format(instance, filename)
 
-        file_url = 'CC-MAIN-{}'.format(file_url)
         with requests.get(file_url, stream=True) as r:
             print('Downloading file %s' % file_url)
             r.raise_for_status()
@@ -101,8 +100,8 @@ def download_files(pattern):
     file_urls_per_instance = get_file_urls(prefix, instances, '{},'.format(pattern))
 
     print('Getting gz_files for instance')
-    for instance in file_urls_per_instance:
-        gz_filenames = get_gz_files(instance)
+    for file_urls in file_urls_per_instance:
+        gz_filenames = get_gz_files(file_urls)
         print(list(gz_filenames))
 
 
