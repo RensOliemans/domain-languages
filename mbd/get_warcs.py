@@ -96,7 +96,6 @@ for instance in instances:
 
     # Strip double quotes
     df = df \
-        .withColumn('urlinfo', udf_strip_dq(df.url)) \
         .withColumn('length', udf_strip_dq(df.length)) \
         .withColumn('offset', udf_strip_dq(df.offset)) \
         .withColumn('filename', udf_strip_dq(df.filename))
@@ -107,9 +106,9 @@ for instance in instances:
         .withColumnRenamed('urlinfo', 'tld')
 
     # Cast to int
-    df = df \
-        .withColumn('length', df.length.cast('int')) \
-        .withColumn('offset', df.offset.cast('int'))
+    # df = df \
+    #     .withColumn('length', df.length.cast('int')) \
+    #     .withColumn('offset', df.offset.cast('int'))
 
     df.write.format('parquet').mode('overwrite').option('header', 'true').csv('output2/{}-{}'.format(instance.split('/')[1], LANGUAGE))
 
