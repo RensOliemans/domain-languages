@@ -4,7 +4,7 @@ from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 from pyspark.sql.types import *
 
-LANGUAGE = 'se'
+LANGUAGE = 'fr'
 
 
 APPNAME = 'Filter URLs'
@@ -82,10 +82,8 @@ for instance in instances:
     df = spark.read.csv('{}--*.gz'.format(instance), sep=' ').repartition(100)
 
     # Take relevant columns and rename
-    df = df.select('_c0', '_c3', '_c5', '_c13', '_c15', '_c17') \
+    df = df.select('_c0', '_c13', '_c15', '_c17') \
         .withColumnRenamed('_c0', 'urlinfo') \
-        .withColumnRenamed('_c3', 'url') \
-        .withColumnRenamed('_c5', 'mime') \
         .withColumnRenamed('_c13', 'length') \
         .withColumnRenamed('_c15', 'offset') \
         .withColumnRenamed('_c17', 'filename')
@@ -113,6 +111,5 @@ for instance in instances:
         .withColumn('length', df.length.cast('int')) \
         .withColumn('offset', df.offset.cast('int'))
 
-    print(df.rdd.getNumPartitions())
-    df.write.format('parquet').mode('overwrite').option('header', 'true').csv('output/{}-{}'.format(instance.split('/')[1], LANGUAGE))
+    df.write.format('parquet').mode('overwrite').option('header', 'true').csv('output2/{}-{}'.format(instance.split('/')[1], LANGUAGE))
 
