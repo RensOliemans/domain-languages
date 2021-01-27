@@ -96,7 +96,7 @@ for instance in instances:
 
     # Strip double quotes
     df = df \
-        .withColumn('url', udf_strip_dq(df.url)) \
+        .withColumn('urlinfo', udf_strip_dq(df.url)) \
         .withColumn('length', udf_strip_dq(df.length)) \
         .withColumn('offset', udf_strip_dq(df.offset)) \
         .withColumn('filename', udf_strip_dq(df.filename))
