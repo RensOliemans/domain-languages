@@ -109,11 +109,15 @@ for i, row in enumerate(df):
     print('Downloading file %s, range %s' % (url, headers))
     resp = requests.get(url, headers=headers, stream=True)
 
+    content = []
+
     for record in ArchiveIterator(resp.raw, arc2warc=True):
         if record.rec_type == 'response':
             if record.http_headers.get_header('Content-Type') == 'text/html':
                 item = FilteredItem(Item(record.content_stream().read()))
                 if not item.filter_out:
-                    print(item.to_detect)
+                    content.append(item.to_detect)
                 print('')
 
+    print('Got %s items, printing it might go bad' % len(content))
+    print('Here goes: %s' % content)
