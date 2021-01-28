@@ -72,14 +72,16 @@ MAPPING = {
 }
 
 
-instances = ['2020-50']
-instances = ['gzs/CC-MAIN-{}'.format(i) for i in instances]
+raw_instances = ['2020-50']
 
-for instance in instances:
+for instance in raw_instances:
     print('Using instance %s' % instance)
+    relevant_files = MAPPING[instance][LANGUAGE]
+    relevant_files = ['gzs/CC-MAIN-{}'.format(i) for i in relevant_files]
+    print(relevant_files)
 
     # Load CSV
-    df = spark.read.csv('{}--*.gz'.format(instance), sep=' ').repartition(100)
+    df = spark.read.csv(*relevant_files, sep=' ').repartition(100)
 
     # Take relevant columns and rename
     df = df.select('_c0', '_c13', '_c15', '_c17') \
