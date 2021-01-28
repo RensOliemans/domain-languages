@@ -1,6 +1,7 @@
 from warcio.archiveiterator import ArchiveIterator
 import requests
 from selectolax.parser import HTMLParser
+import logging
 
 from pyspark import SparkContext
 from pyspark.sql import SparkSession, Row
@@ -9,6 +10,7 @@ import pyspark.sql.functions as F
 from pyspark.sql.types import *
 
 
+logging.basicConfig(level=logging.INFO)
 MIN_AMOUNT = 5
 MIN_LENGTH = 100
 APPNAME = 'Get WARCs'
@@ -87,21 +89,8 @@ class FilteredItem(ParsedItem):
         return self.parsed is None or any((f(self.parsed) for f in self.filters))
 
 
-LANGUAGE = 'fr'
-INSTANCE = '2020-50'
-directory = 'output2/CC-MAIN-{}-{}'.format(INSTANCE, LANGUAGE)
-
-PREFIX = 'https://commoncrawl.s3.amazonaws.com/'
-
-print('Reading 1%% of %s' % directory)
-df = spark.read.option('header', 'true').csv(directory).sample(0.0001)
-df = df.collect()
-content = []
-
-
-for i, row in enumerate(df):
+def download_row(row):
     url = PREFIX + row.filename
-    out_filename = '{}.warc.gz'.format(i)
     url = url.replace(',', '').replace('}', '')
 
     offset = int(row.offset.replace(',', ''))
@@ -109,7 +98,7 @@ for i, row in enumerate(df):
 
     headers = {"Range": "bytes={}-{}".format(offset, end)}
 
-    print('Downloading file %s, range %s' % (url, headers))
+    logging.info('Downloading file %s, range %s', url, headers)
     try:
         resp = requests.get(url, headers=headers, stream=True)
 
@@ -118,17 +107,25 @@ for i, row in enumerate(df):
                 if record.http_headers.get_header('Content-Type') == 'text/html':
                     item = FilteredItem(Item(record.content_stream().read()))
                     if not item.filter_out:
-                        content.append({'tld': LANGUAGE, 'content': item.to_detect})
+                        return LANGUAGE, item.to_detect
                     print('')
     except ConnectionError as e:
-        print('Connection Error: %s' % e)
-        continue
+        logging.info('Connection Error: %s', e)
+        return
 
-try:
-    schema = ['tld', 'content']
-    df = spark.createDataFrame(sc.parallelize((Row(**x) for x in content), numSlices=10), schema)
-    print(df.show())
-    df.write.format('parquet').mode('overwrite').option('header', 'true').csv('output/{}-{}'.format(INSTANCE, LANGUAGE))
-    print('Stored!')
-except Exception as e:
-    print('Couldnt store, exception was %s' % e)
+
+LANGUAGE = 'fr'
+INSTANCE = '2020-50'
+directory = 'output2/CC-MAIN-{}-{}'.format(INSTANCE, LANGUAGE)
+
+PREFIX = 'https://commoncrawl.s3.amazonaws.com/'
+
+logging.info('Reading 1%% of %s', directory)
+schema = ['tld', 'content']
+
+df = spark.read.option('header', 'true').csv(directory).sample(0.01)
+rdd = df.rdd.map(lambda row: download_row(row))
+df = spark.createDataFrame(rdd, schema)
+df.write.format('parquet').mode('overwrite').option('header', 'true').csv('output/{}-{}'.format(INSTANCE, LANGUAGE))
+
+print('Stored')
