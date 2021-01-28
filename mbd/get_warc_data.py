@@ -26,6 +26,7 @@ df = df.collect()
 for i, row in enumerate(df):
     url = PREFIX + row.filename
     out_filename = '{}.warc.gz'.format(i)
+    url = url.replace(',', '')
 
     with requests.get(url, stream=True) as r:
         print('Downloading file %s' % url)
