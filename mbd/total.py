@@ -427,4 +427,4 @@ def combined(language, instance):
     store_warcs(language, instance)
 
 
-main(['se', 'it', 'es', 'ru', 'gr', 'de', 'uk'], ['2020-50'])
+main(['se', 'de'], ['2020-50'])
