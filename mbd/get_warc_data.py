@@ -58,8 +58,13 @@ for i, row in enumerate(df):
     out_filename = '{}.warc.gz'.format(i)
     url = url.replace(',', '').replace('}', '')
 
-    print('Downloading file %s' % url)
-    resp = requests.get(url, stream=True)
+    offset = int(row.offset.replace(',', ''))
+    end = offset + int(row.length.replace(',', ''))
+
+    headers = {"Range": "bytes={}-{}".format(offset, end)}
+
+    print('Downloading file %s, range %s' % (url, headers))
+    resp = requests.get(url, headers=headers, stream=True)
 
     j = 0
 
