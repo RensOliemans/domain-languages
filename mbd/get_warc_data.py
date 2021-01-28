@@ -50,7 +50,7 @@ class Item:
 
 
 class ParsedItem:
-    def __init__(self, item: Item, parser=get_text_from_html):
+    def __init__(self, item, parser=get_text_from_html):
         self.item = item
         self._parser = parser
         self._parsed = None
