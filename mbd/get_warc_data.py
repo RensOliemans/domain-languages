@@ -93,7 +93,8 @@ directory = 'output2/CC-MAIN-{}-{}'.format(INSTANCE, LANGUAGE)
 
 PREFIX = 'https://commoncrawl.s3.amazonaws.com/'
 
-df = spark.read.option('header', 'true').csv(directory)
+print('Reading 1%% of %s' % directory)
+df = spark.read.option('header', 'true').csv(directory).sample(0.01)
 df = df.collect()
 content = []
 
