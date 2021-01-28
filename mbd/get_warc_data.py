@@ -43,6 +43,49 @@ def filter_text(text):
     return len(text) < MIN_AMOUNT or any([len(line) < MIN_LENGTH for line in longest_lines])
 
 
+class Item:
+    def __init__(self, obj):
+        self.url = obj.data['url']
+        self.content = obj.content
+
+
+class ParsedItem:
+    def __init__(self, item: Item, parser=get_text_from_html):
+        self.item = item
+        self._parser = parser
+        self._parsed = None
+        self._longest_sentence = None
+
+    @property
+    def parsed(self):
+        if self._parsed is None:
+            self._parsed = self._parser(self.item.content)
+        return self._parsed
+
+    @property
+    def url(self):
+        return self.item.url
+
+    @property
+    def longest_sentences(self):
+        if self._longest_sentence is None:
+            self._longest_sentence = get_longest_sentence(self.parsed)
+        return self._longest_sentence
+
+    @property
+    def to_detect(self):
+        return ' '.join(self.longest_sentences)
+
+
+class FilteredItem(ParsedItem):
+    def __init__(self, item, parser=get_text_from_html, filters=None):
+        super().__init__(item, parser)
+        self.filters = [filter_text] if filters is None else filters
+
+    @property
+    def filter_out(self):
+        return self.parsed is None or any((f(self.parsed) for f in self.filters))
+
 
 LANGUAGE = 'fr'
 INSTANCE = '2020-50'
@@ -66,13 +109,11 @@ for i, row in enumerate(df):
     print('Downloading file %s, range %s' % (url, headers))
     resp = requests.get(url, headers=headers, stream=True)
 
-
     for record in ArchiveIterator(resp.raw, arc2warc=True):
         if record.rec_type == 'response':
             if record.http_headers.get_header('Content-Type') == 'text/html':
-                print(record.rec_headers.get_header('WARC-Target-URI'))
-                content = record.content_stream().read()
-                print(get_longest_sentence(get_text_from_html(content)))
-                print(content)
+                item = FilteredItem(Item(record.content_stream().read()))
+                if not item.filter_out:
+                    print(item.to_detect)
                 print('')
 
