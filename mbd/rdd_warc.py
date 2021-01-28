@@ -116,7 +116,7 @@ def download_row(row):
 
 LANGUAGE = 'fr'
 INSTANCE = '2020-50'
-directory = 'output2/CC-MAIN-{}-{}'.format(INSTANCE, LANGUAGE)
+directory = 'warc-locations/CC-MAIN-{}-{}'.format(INSTANCE, LANGUAGE)
 
 PREFIX = 'https://commoncrawl.s3.amazonaws.com/'
 

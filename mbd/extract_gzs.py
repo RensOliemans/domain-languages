@@ -107,11 +107,6 @@ for instance in raw_instances:
         .withColumn('urlinfo', udf_tld(df.urlinfo)) \
         .withColumnRenamed('urlinfo', 'tld')
 
-    # Cast to int
-    # df = df \
-    #     .withColumn('length', df.length.cast('int')) \
-    #     .withColumn('offset', df.offset.cast('int'))
-
-    df = df.sample(0.01)
-    df.write.format('parquet').mode('overwrite').option('header', 'true').csv('output2/{}-{}'.format(instance.split('/')[1], LANGUAGE))
+    # df = df.sample(0.01)
+    df.write.format('parquet').mode('overwrite').option('header', 'true').csv('warc-locations/{}-{}'.format(instance.split('/')[1], LANGUAGE))
 
