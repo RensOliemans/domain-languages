@@ -1,5 +1,6 @@
 import os
 import logging
+from multiprocessing.pool import ThreadPool
 
 from warcio.archiveiterator import ArchiveIterator
 import requests
@@ -408,16 +409,22 @@ def store_warcs(language, instance):
 
 
 def main(languages, instances):
-    for language in languages:
-        download_files(language, instances)
-    # output(languages,  instances)
+    # for language in languages:
+    #     download_files(language, instances)
+    output(languages,  instances)
 
 
 def output(languages, instances):
     for instance in instances:
-        for language in languages:
-            extract_gzs(language, instance)
-            store_warcs(language, instance)
+        p = ThreadPool(8)
+        p.map(lambda l: combined(l, instance), languages)
+        p.close()
+        p.join()
+
+
+def combined(language, instance):
+    extract_gzs(language, instance)
+    store_warcs(language, instance)
 
 
 main(['se', 'it', 'es', 'ru', 'gr', 'de', 'uk'], ['2020-50'])
