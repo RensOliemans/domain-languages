@@ -20,10 +20,11 @@ directory = 'output2/CC-MAIN-{}-{}'.format(INSTANCE, LANGUAGE)
 PREFIX = 'https://commoncrawl.s3.amazonaws.com/'
 
 df = spark.read.option('header', 'true').csv(directory)
-filenames = df.filename.collect()
+print(df.take(10))
+df = df.collect()
 
-for i, filename in enumerate(filenames):
-    url = PREFIX + filename
+for i, row in enumerate(df):
+    url = PREFIX + row.filename
     out_filename = i + '.warc.gz'
 
     with requests.get(url, stream=True) as r:
