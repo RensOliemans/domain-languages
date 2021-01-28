@@ -289,7 +289,7 @@ def extract_gzs(language, instance):
 
     # df = df.sample(0.01)
     logging.info('Saving gz files')
-    df.write.format('parquet').mode('overwrite').option('header', 'true').csv('warc-locations/{}-{}'.format(instance.split('/')[1], language))
+    df.write.format('parquet').mode('overwrite').option('header', 'true').csv('warc-locations/{}-{}'.format(instance, language))
     logging.info('Saved gz files')
 
 
