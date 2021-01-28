@@ -78,7 +78,7 @@ def get_file_urls(prefix, instances, pattern):
 def save_cluster_files(prefix, instances):
     for instance in instances:
         full_instance = 'CC-MAIN-' + instance
-        cfg = ClusterFileSaver(prefix, full_instance, 'clusters/', 'cluster-{}.idx'.format(instance))
+        cfg = ClusterFileSaver(prefix, full_instance, '/user/s1740326/clusters/', 'cluster-{}.idx'.format(instance))
         if not cfg.exists:
             print('Saving file %s' % full_instance)
             cfg.save()
@@ -91,7 +91,7 @@ def get_gz_files(file_urls):
         parts = file_url.split('/')
         filename = parts[-1]
         instance = parts[-3]
-        out_filename = 'gzs/{}--{}'.format(instance, filename)
+        out_filename = '/user/s1740326/gzs/{}--{}'.format(instance, filename)
 
         if os.path.isfile(out_filename):
             print('File %s already exists' % out_filename)
@@ -119,7 +119,7 @@ def download_files(pattern, instances):
         print(list(gz_filenames))
 
 
-def convert_to_tld( entry):
+def convert_to_tld(entry):
     parts = entry.split(',')
     return parts[0]
 
