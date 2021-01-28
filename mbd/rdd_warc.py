@@ -124,7 +124,7 @@ logging.info('Reading 1%% of %s', directory)
 schema = ['tld', 'content']
 
 df = spark.read.option('header', 'true').csv(directory).sample(0.01)
-rdd = df.rdd.map(lambda row: download_row(row))
+rdd = df.rdd.map(lambda row: download_row(row)).filter(bool)
 df = spark.createDataFrame(rdd, schema)
 df.write.format('parquet').mode('overwrite').option('header', 'true').csv('output/{}-{}'.format(INSTANCE, LANGUAGE))
 
