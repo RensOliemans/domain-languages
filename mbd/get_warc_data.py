@@ -3,7 +3,7 @@ import requests
 from selectolax.parser import HTMLParser
 
 from pyspark import SparkContext
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, Row
 
 import pyspark.sql.functions as F
 from pyspark.sql.types import *
@@ -115,8 +115,13 @@ for i, row in enumerate(df):
             if record.http_headers.get_header('Content-Type') == 'text/html':
                 item = FilteredItem(Item(record.content_stream().read()))
                 if not item.filter_out:
-                    content.append(item.to_detect)
+                    content.append({'tld': LANGUAGE, 'content': item.to_detect})
                 print('')
 
-print('Got %s items, printing it might go bad' % len(content))
-print('Here goes: %s' % content)
+try:
+    schema = ['tld', 'content']
+    df = spark.createDataFrame(sc.parallelize((Row(**x) for x in content), numSlices=100), schema)
+    df.write.format('parquet').mode('overwrite').option('header', 'true').csv('output/{}-{}'.format(INSTANCE, LANGUAGE))
+    print('Stored!')
+except Exception as e:
+    print('Couldnt store, exception was %s' % e)
