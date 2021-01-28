@@ -66,15 +66,13 @@ for i, row in enumerate(df):
     print('Downloading file %s, range %s' % (url, headers))
     resp = requests.get(url, headers=headers, stream=True)
 
-    j = 0
 
     for record in ArchiveIterator(resp.raw, arc2warc=True):
-        j += 1
         if record.rec_type == 'response':
             if record.http_headers.get_header('Content-Type') == 'text/html':
                 print(record.rec_headers.get_header('WARC-Target-URI'))
-                # print(record.content_stream().read())
+                content = record.content_stream().read()
+                print(get_longest_sentence(get_text_from_html(content)))
+                print(content)
                 print('')
 
-    print('% records' % j)
-    break
