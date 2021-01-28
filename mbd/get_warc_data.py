@@ -95,6 +95,7 @@ PREFIX = 'https://commoncrawl.s3.amazonaws.com/'
 
 df = spark.read.option('header', 'true').csv(directory)
 df = df.collect()
+content = []
 
 for i, row in enumerate(df):
     url = PREFIX + row.filename
@@ -109,8 +110,6 @@ for i, row in enumerate(df):
     print('Downloading file %s, range %s' % (url, headers))
     resp = requests.get(url, headers=headers, stream=True)
 
-    content = []
-
     for record in ArchiveIterator(resp.raw, arc2warc=True):
         if record.rec_type == 'response':
             if record.http_headers.get_header('Content-Type') == 'text/html':
@@ -119,5 +118,5 @@ for i, row in enumerate(df):
                     content.append(item.to_detect)
                 print('')
 
-    print('Got %s items, printing it might go bad' % len(content))
-    print('Here goes: %s' % content)
+print('Got %s items, printing it might go bad' % len(content))
+print('Here goes: %s' % content)
