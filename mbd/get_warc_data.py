@@ -79,7 +79,7 @@ class ParsedItem:
 
 class FilteredItem(ParsedItem):
     def __init__(self, item, parser=get_text_from_html, filters=None):
-        super().__init__(item, parser)
+        super(ParsedItem, self).__init__(item, parser)
         self.filters = [filter_text] if filters is None else filters
 
     @property
