@@ -110,5 +110,6 @@ for instance in instances:
     #     .withColumn('length', df.length.cast('int')) \
     #     .withColumn('offset', df.offset.cast('int'))
 
+    df = df.sample(0.01)
     df.write.format('parquet').mode('overwrite').option('header', 'true').csv('output2/{}-{}'.format(instance.split('/')[1], LANGUAGE))
 
