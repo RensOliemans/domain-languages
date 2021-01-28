@@ -20,20 +20,6 @@ sc.setLogLevel('ERROR')
 spark = SparkSession.builder.appName(APPNAME).getOrCreate()
 
 
-def main(languages, instances):
-    for language in languages:
-        download_files(language, instances)
-    output(languages,  instances)
-    extract_gzs(languages, instances)
-
-
-def output(languages, instances):
-    for instance in instances:
-        for language in languages:
-            extract_gzs(language, instance)
-
-
-main(['se'], ['2020-50'])
 
 
 class DomainGetter:
@@ -421,3 +407,18 @@ def store_warcs(language, instance):
     logging.info('Amount of pages: %s', df.count())
 
 
+
+def main(languages, instances):
+    for language in languages:
+        download_files(language, instances)
+    output(languages,  instances)
+
+
+def output(languages, instances):
+    for instance in instances:
+        for language in languages:
+            extract_gzs(language, instance)
+            store_warcs(language, instance)
+
+
+main(['se', 'it', 'es', 'ru', 'gr', 'de', 'uk'], ['2020-50'])
