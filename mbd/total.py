@@ -259,7 +259,7 @@ def extract_gzs(language, instance):
     logging.info(relevant_files)
 
     # Load CSV
-    df = spark.read.csv(*relevant_files, sep=' ').repartition(100)
+    df = spark.read.csv(','.join(relevant_files), sep=' ').repartition(100)
 
     logging.info('Read files')
 
