@@ -108,7 +108,7 @@ def download_row(row):
                     item = FilteredItem(Item(record.content_stream().read()))
                     if not item.filter_out:
                         return LANGUAGE, item.to_detect
-                    print('')
+                    logging.info('\n')
     except ConnectionError as e:
         logging.info('Connection Error: %s', e)
         return
@@ -116,16 +116,18 @@ def download_row(row):
 
 LANGUAGE = 'fr'
 INSTANCE = '2020-50'
-directory = 'warc-locations/CC-MAIN-{}-{}'.format(INSTANCE, LANGUAGE)
+directory = 'output2/CC-MAIN-{}-{}'.format(INSTANCE, LANGUAGE)
+out_filename = 'output/{}-{}'.format(INSTANCE, LANGUAGE)
 
 PREFIX = 'https://commoncrawl.s3.amazonaws.com/'
 
-logging.info('Reading 1%% of %s', directory)
+fraction = 0.1
+logging.info('Reading %s%% of %s', fraction*100, directory)
 schema = ['tld', 'content']
 
-df = spark.read.option('header', 'true').csv(directory)
+df = spark.read.option('header', 'true').csv(directory).sample(fraction)
 rdd = df.rdd.map(lambda row: download_row(row)).filter(bool)
 df = spark.createDataFrame(rdd, schema)
-df.write.format('parquet').mode('overwrite').option('header', 'true').csv('output/{}-{}'.format(INSTANCE, LANGUAGE))
-
-print('Stored')
+df.write.format('parquet').mode('overwrite').option('header', 'true').csv(out_filename)
+logging.info('Stored in %s', out_filename)
+logging.info('Amount of pages: %s', df.count())
