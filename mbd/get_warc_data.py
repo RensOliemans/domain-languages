@@ -45,8 +45,8 @@ def filter_text(text):
 
 class Item:
     def __init__(self, obj):
-        self.url = obj.data['url']
-        self.content = obj.content
+        # self.url = obj.data['url']
+        self.content = obj
 
 
 class ParsedItem:
