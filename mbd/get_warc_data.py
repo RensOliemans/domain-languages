@@ -43,13 +43,13 @@ def filter_text(text):
     return len(text) < MIN_AMOUNT or any([len(line) < MIN_LENGTH for line in longest_lines])
 
 
-class Item:
+class Item(object):
     def __init__(self, obj):
         # self.url = obj.data['url']
         self.content = obj
 
 
-class ParsedItem:
+class ParsedItem(object):
     def __init__(self, item, parser=get_text_from_html):
         self.item = item
         self._parser = parser
