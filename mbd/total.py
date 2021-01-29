@@ -390,12 +390,12 @@ def download_row(row, language, prefix):
 
 def store_warcs(language, instance):
     logging.info('Starting with storing warcs. language: %s, instance %s', language, instance)
-    directory = 'warc-locations/CC-MAIN-{}-{}'.format(instance, language)
+    directory = 'warc-locations/CC-MAIN-{}-{}'.format(instance, language).replace(';', '')
     out_filename = 'output/{}-{}'.format(instance, language)
 
     prefix = 'https://commoncrawl.s3.amazonaws.com/'
 
-    fraction = 0.0001
+    fraction = 0.01
     logging.info('Reading %s%% of %s', fraction * 100, directory)
     schema = ['tld', 'content']
 
@@ -423,7 +423,7 @@ def output(languages, instances):
 
 
 def combined(language, instance):
-    extract_gzs(language, instance)
+    # extract_gzs(language, instance)
     store_warcs(language, instance)
 
 
