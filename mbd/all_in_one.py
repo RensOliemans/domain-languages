@@ -298,7 +298,7 @@ def total(language, instance):
         .map(lambda row: download_row(row, language, prefix)).filter(bool) \
         .map(lambda cl: (cl[0], detect(cl[1]))) \
         .map(lambda cl: (cl[0], {lang: 1 if lang == cl[1] else 0 for lang in total_languages})) \
-        .recudeByKey(lambda a, b: {c: a[c] + b[c] for c in total_languages})
+        .reduceByKey(lambda a, b: {c: a[c] + b[c] for c in total_languages})
 
     logging.info('Getting results for country %s', language)
     results = rdd.collect()
