@@ -11,6 +11,8 @@ from pyspark.sql import SparkSession, Row
 import pyspark.sql.functions as F
 from pyspark.sql.types import StringType
 
+from langdetect import detect
+
 
 logging.basicConfig(level=logging.INFO)
 MIN_AMOUNT = 5
@@ -283,14 +285,25 @@ def total(language, instance):
         .withColumn('urlinfo', udf_tld(df.urlinfo)) \
         .withColumnRenamed('urlinfo', 'tld')
 
-    # df = df.sample(0.01)
+    fraction = 0.00001
+    logging.info('Using fraction: %s%%', fraction * 100)
+    df = df.sample(fraction)
+
     prefix = 'https://commoncrawl.s3.amazonaws.com/'
-    schema = ['tld', 'content']
-    rdd = df.rdd.map(lambda row: download_row(row, prefix)).filter(bool)
-    df = spark.createDataFrame(rdd, schema)
-    df.write.format('parquet').mode('overwrite').option('header', 'true').csv(out_filename)
-    logging.info('Stored in %s', out_filename)
-    logging.info('Amount of pages: %s', df.count())
+
+    total_languages = ['bg', 'cs', 'de', 'el', 'en', 'es', 'fi', 'fr', 'hr', 'hu',
+                       'it', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sv', 'tr', 'uk']
+
+    rdd = df.rdd \
+        .map(lambda row: download_row(row, language, prefix)).filter(bool) \
+        .map(lambda cl: (cl[0], detect(cl[1]))) \
+        .map(lambda cl: (cl[0], {lang: 1 if lang == cl[1] else 0 for lang in total_languages})) \
+        .recudeByKey(lambda a, b: {c: a[c] + b[c] for c in total_languages})
+
+    logging.info('Getting results for country %s', language)
+    results = rdd.collect()
+    logging.critical('For country %s, results %s (%s rows)', language, results, len(results))
+    print('For country: %s, results: %s' % (language, results))
 
 
 instances = ['2020-50']
