@@ -246,15 +246,6 @@ def download_row(row, language, prefix):
         return
 
 
-instances = ['2020-50']
-languages = ['se', 'it', 'es', 'ru', 'gr', 'de', 'uk']
-
-for instance in instances:
-    p = ThreadPool(8)
-    p.map(lambda l: total(l, instance), languages)
-    p.close()
-    p.join()
-
 def total(language, instance):
     logging.info('Starting with extracting gz files. language: %s, instance %s', language, instance)
     relevant_files = MAPPING[instance][language]
@@ -299,3 +290,13 @@ def total(language, instance):
     df.write.format('parquet').mode('overwrite').option('header', 'true').csv(out_filename)
     logging.info('Stored in %s', out_filename)
     logging.info('Amount of pages: %s', df.count())
+
+
+instances = ['2020-50']
+languages = ['se', 'it', 'es', 'ru', 'gr', 'de', 'uk']
+
+for instance in instances:
+    p = ThreadPool(8)
+    p.map(lambda l: total(l, instance), languages)
+    p.close()
+    p.join()
