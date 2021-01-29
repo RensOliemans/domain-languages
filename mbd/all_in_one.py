@@ -285,8 +285,9 @@ def total(language, instance):
 
     # df = df.sample(0.01)
     prefix = 'https://commoncrawl.s3.amazonaws.com/'
+    schema = ['tld', 'content']
     rdd = df.rdd.map(lambda row: download_row(row, prefix)).filter(bool)
-    df = spark.createDataFrame(rdd.schema)
+    df = spark.createDataFrame(rdd, schema)
     df.write.format('parquet').mode('overwrite').option('header', 'true').csv(out_filename)
     logging.info('Stored in %s', out_filename)
     logging.info('Amount of pages: %s', df.count())
