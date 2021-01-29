@@ -1,17 +1,32 @@
-import os
 import logging
 from multiprocessing.pool import ThreadPool
 
 from warcio.archiveiterator import ArchiveIterator
 import requests
 from selectolax.parser import HTMLParser
+from langdetect import detect
 
 from pyspark import SparkContext
 from pyspark.sql import SparkSession, Row
 import pyspark.sql.functions as F
 from pyspark.sql.types import StringType
 
-from langdetect import detect
+
+"""
+Language detection of Common Crawl webpages with Spark.
+This file is big since with spark-submit you can only execute/pass 1 Python file.
+Approximate table of contents:
+
+32-39:   configuration
+41-157:  mapping
+159-231: helper functions/classes
+233-248: own UDF helper functions (from spark.sql.functions.UDF)
+250-282: download_row, which gets a WARC file from the S3 server
+284-342: total function, this uses the CC cluster files and outputs the detected languages
+         for a given language+instance (instance refers to a specific CC scrape, such as 2020-50)
+344-352: actual running of code 
+
+"""
 
 
 logging.basicConfig(level=logging.INFO)
@@ -23,6 +38,8 @@ sc.setLogLevel('ERROR')
 spark = SparkSession.builder.appName(APPNAME).getOrCreate()
 
 
+# This is hardcoded mapping which keeps track of what index files belong to
+# what TLDs (in what years)
 MAPPING = {
     '2020-50': {
         'fr': ['00190', '00191', '00192', '00193', '00194'],
@@ -138,7 +155,11 @@ MAPPING = {
     }
 }
 
+
 def get_text_from_html(html):
+    """
+    Uses Selectolax to parse the HTML
+    """
     tree = HTMLParser(html)
 
     if tree.body is None:
@@ -164,21 +185,6 @@ def filter_text(text):
     return len(text) < MIN_AMOUNT or any([len(line) < MIN_LENGTH for line in longest_lines])
 
 
-def convert_to_tld(entry):
-    parts = entry.split(',')
-    return parts[0]
-
-
-def strip_dq(entry):
-    if entry:
-        return entry.replace('"', '')
-    return entry
-
-
-udf_tld = F.udf(convert_to_tld, StringType())
-udf_strip_dq = F.udf(strip_dq, StringType())
-
-
 class Item(object):
     def __init__(self, obj):
         # self.url = obj.data['url']
@@ -186,6 +192,7 @@ class Item(object):
 
 
 class ParsedItem(object):
+    """Item with easy parse and longest-sentence functionality"""
     def __init__(self, item, parser=get_text_from_html):
         self.item = item
         self._parser = parser
@@ -223,10 +230,35 @@ class FilteredItem(ParsedItem):
         return self.parsed is None or any((f(self.parsed) for f in self.filters))
 
 
-def download_row(row, language, prefix):
-    url = prefix + row.filename
-    url = url.replace(',', '').replace('}', '')
+def convert_to_tld(entry):
+    """Converts the URL-info (from CC) into a TLD"""
+    parts = entry.split(',')
+    return parts[0]
 
+
+def strip_dq(entry):
+    """Strips double quotes from CC data"""
+    if entry:
+        return entry.replace('"', '')
+    return entry
+
+
+udf_tld = F.udf(convert_to_tld, StringType())
+udf_strip_dq = F.udf(strip_dq, StringType())
+
+
+def download_row(row, language, prefix):
+    """
+    This method gets the filtered WARC result.
+
+    row:      row object, what is returned bhe CC index. Contains filename, length, offset
+    language: language currently used, not really necessary but useful for data structure
+    prefix:   prefix of the S3 dataset, usually https://commoncrawl.s3.amazonaws.com/
+    """
+    url = prefix + row.filename
+    url = url.replace(',', '').replace('}', '')  # Strip infrequent last characters
+
+    # This is necessary since the CC data sometimes (but not always) contains a comma
     offset = int(row.offset.replace(',', ''))
     end = offset + int(row.length.replace(',', ''))
 
@@ -252,7 +284,6 @@ def download_row(row, language, prefix):
 def total(language, instance):
     logging.info('Starting with extracting gz files. language: %s, instance %s', language, instance)
     relevant_files = MAPPING[instance][language]
-    out_filename = 'output/{}-{}'.format(instance, language)
 
     relevant_files = ['gzs/CC-MAIN-{}'.format(i) for i in relevant_files]
     logging.info(relevant_files)
@@ -286,6 +317,7 @@ def total(language, instance):
         .withColumn('urlinfo', udf_tld(df.urlinfo)) \
         .withColumnRenamed('urlinfo', 'tld')
 
+    # Sample
     fraction = 0.1
     logging.info('Using fraction: %s%%', fraction * 100)
     df = df.sample(fraction)
@@ -295,12 +327,14 @@ def total(language, instance):
     total_languages = ['bg', 'cs', 'de', 'el', 'en', 'es', 'fi', 'fr', 'hr', 'hu',
                        'it', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sv', 'tr', 'uk']
 
+    # Convert in form, detect language and combine results
     rdd = df.rdd \
         .map(lambda row: download_row(row, language, prefix)).filter(bool) \
         .map(lambda cl: (cl[0], detect(cl[1]))) \
         .map(lambda cl: (cl[0], {lang: 1 if lang == cl[1] else 0 for lang in total_languages})) \
         .reduceByKey(lambda a, b: {c: a[c] + b[c] for c in total_languages})
 
+    # Collecting here is fine: these are the final results
     logging.info('Getting results for country %s', language)
     results = rdd.collect()
     logging.critical('For country %s, results %s (%s rows)', language, results, len(results))
