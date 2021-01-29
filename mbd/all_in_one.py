@@ -237,12 +237,13 @@ def download_row(row, language, prefix):
         resp = requests.get(url, headers=headers, stream=True)
 
         for record in ArchiveIterator(resp.raw, arc2warc=True):
-            if record.rec_type == 'response':
-                if record.http_headers.get_header('Content-Type') == 'text/html':
-                    item = FilteredItem(Item(record.content_stream().read()))
-                    if not item.filter_out:
-                        return language, item.to_detect
-                    logging.info('\n')
+            try:
+                item = FilteredItem(Item(record.content_stream().read()))
+                if not item.filter_out:
+                    return language, item.to_detect
+                logging.info('\n')
+            except Exception as e:
+                logging.debug('Skipping record %s, got exception %s', record, e)
     except ConnectionError as e:
         logging.info('Connection Error: %s', e)
         return
@@ -285,7 +286,7 @@ def total(language, instance):
         .withColumn('urlinfo', udf_tld(df.urlinfo)) \
         .withColumnRenamed('urlinfo', 'tld')
 
-    fraction = 0.00001
+    fraction = 0.1
     logging.info('Using fraction: %s%%', fraction * 100)
     df = df.sample(fraction)
 
