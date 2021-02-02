@@ -319,7 +319,7 @@ def total(language, instance):
         .withColumnRenamed('urlinfo', 'tld')
 
     # Sample
-    fraction = 0.00001
+    fraction = 0.0000000001
     logging.info('Using fraction: %s%%', fraction * 100)
     df = df.sample(fraction)
 
@@ -329,8 +329,9 @@ def total(language, instance):
                        'it', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sv', 'tr', 'uk']
 
 
-    rdd = df.rdd.map(lambda row: ('{}{}'.format(prefix, row.filename), download_row(row, language, prefix)))
+    rdd = df.rdd.map(lambda row: '{}{}'.format(prefix, row.filename))
     logging.critical('First 1000 results: %s', rdd.take(1000))
+    return
 
     # Convert in form, detect language and combine results
     rdd = df.rdd \
