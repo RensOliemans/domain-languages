@@ -260,12 +260,13 @@ def download_row(row, language, prefix):
 
     # This is necessary since the CC data sometimes (but not always) contains a comma
     offset = int(row.offset.replace(',', ''))
-    end = offset + int(row.length.replace(',', ''))
+    end = offset + int(row.length.replace(',', ''))  # end = offset + length
 
     headers = {"Range": "bytes={}-{}".format(offset, end)}
 
     logging.info('Downloading file %s, range %s', url, headers)
     try:
+        # Download WARC bestand voor dit specifieke domein
         resp = requests.get(url, headers=headers, stream=True)
 
         for record in ArchiveIterator(resp.raw, arc2warc=True):
@@ -318,7 +319,7 @@ def total(language, instance):
         .withColumnRenamed('urlinfo', 'tld')
 
     # Sample
-    fraction = 0.1
+    fraction = 0.00001
     logging.info('Using fraction: %s%%', fraction * 100)
     df = df.sample(fraction)
 
@@ -326,6 +327,10 @@ def total(language, instance):
 
     total_languages = ['bg', 'cs', 'de', 'el', 'en', 'es', 'fi', 'fr', 'hr', 'hu',
                        'it', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sv', 'tr', 'uk']
+
+
+    rdd = df.rdd.map(lambda row: ('{}{}'.format(prefix, row.filename), download_row(row, language, prefix)))
+    logging.critical('First 1000 results: %s', rdd.take(1000))
 
     # Convert in form, detect language and combine results
     rdd = df.rdd \
