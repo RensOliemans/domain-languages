@@ -351,8 +351,10 @@ def total(language, instance):
 instances = ['2020-50']
 languages = ['se', 'it', 'es', 'ru', 'gr', 'de', 'uk']
 
-for instance in instances:
-    p = ThreadPool(8)
-    p.map(lambda l: total(l, instance), languages)
-    p.close()
-    p.join()
+total('se', '2020-50')
+
+# for instance in instances:
+    # p = ThreadPool(8)
+    # p.map(lambda l: total(l, instance), languages)
+    # p.close()
+    # p.join()
