@@ -287,7 +287,7 @@ def total(language, instance):
     relevant_files = MAPPING[instance][language]
 
     logging.info(relevant_files)
-    files_to_read = ['gzs/CC-MAIN-{}--cdx-'.format(instance, i) for i in relevant_files]
+    files_to_read = ['gzs/CC-MAIN-{}--cdx-{}'.format(instance, i) for i in relevant_files]
     logging.info(files_to_read)
 
     # Load CSV
