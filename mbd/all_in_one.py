@@ -286,11 +286,12 @@ def total(language, instance):
     logging.info('Starting with extracting gz files. language: %s, instance %s', language, instance)
     relevant_files = MAPPING[instance][language]
 
+    logging.info(relevant_files)
     relevant_files = ['gzs/CC-MAIN-{}--cdx-'.format(instance, i) for i in relevant_files]
     logging.info(relevant_files)
 
     # Load CSV
-    df = spark.read.csv('relevant_files', sep=' ').repartition(100)
+    df = spark.read.csv(relevant_files, sep=' ').repartition(100)
 
     logging.info('Read files')
 
