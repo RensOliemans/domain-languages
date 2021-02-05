@@ -277,8 +277,8 @@ def download_row(row, language, prefix):
                 logging.info('\n')
             except Exception as e:
                 logging.debug('Skipping record %s, got exception %s', record, e)
-    except ConnectionError as e:
-        logging.info('Connection Error: %s', e)
+    except Exception as e:
+        logging.info('Warc Error: %s', e)
         return
 
 
