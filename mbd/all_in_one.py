@@ -291,7 +291,7 @@ def total(language, instance):
     logging.info(files_to_read)
 
     # Load CSV
-    df = spark.read.csv(files_to_read, sep=' ').repartition(100)
+    df = spark.read.csv('gzs/CC-MAIN-2020-50--cdx-00277.gz', sep=' ').repartition(100)
 
     logging.info('Read files')
 
