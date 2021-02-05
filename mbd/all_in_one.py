@@ -287,7 +287,7 @@ def total(language, instance):
     relevant_files = MAPPING[instance][language]
 
     logging.info(relevant_files)
-    files_to_read = ['gzs/CC-MAIN-{}--cdx-{}'.format(instance, i) for i in relevant_files]
+    files_to_read = ['gzs/CC-MAIN-{}--cdx-{}.gz'.format(instance, i) for i in relevant_files]
     logging.info(files_to_read)
 
     # Load CSV
@@ -320,19 +320,17 @@ def total(language, instance):
         .withColumnRenamed('urlinfo', 'tld')
 
     # Sample
-    fraction = 0.0000000001
-    logging.info('Using fraction: %s%%', fraction * 100)
-    df = df.sample(fraction)
+    # fraction = 0.0000000001
+    # logging.info('Using fraction: %s%%', fraction * 100)
+    # df = df.sample(fraction)
 
     prefix = 'https://commoncrawl.s3.amazonaws.com/'
 
     total_languages = ['bg', 'cs', 'de', 'el', 'en', 'es', 'fi', 'fr', 'hr', 'hu',
                        'it', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sv', 'tr', 'uk']
 
-
-    rdd = df.rdd.map(lambda row: '{}{}'.format(prefix, row.filename))
-    logging.critical('First 1000 results: %s', rdd.take(1000))
-    return
+    rdd2 = df.rdd.map(lambda row: '{}{} -- {} -- {}'.format(prefix, row.filename, row.offset, row.length))
+    logging.critical('First 1000 results: %s', rdd2.take(1000))
 
     # Convert in form, detect language and combine results
     rdd = df.rdd \
