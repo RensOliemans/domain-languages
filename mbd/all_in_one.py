@@ -182,7 +182,7 @@ def get_longest_sentence(text):
 def filter_text(text):
     longest_lines = get_longest_sentence(text)
     text = text.split('\n')
-    return len(text) < MIN_AMOUNT or any([len(line) < MIN_LENGTH for line in longest_lines])
+    return len(longest_lines) < MIN_AMOUNT or any([len(line) < MIN_LENGTH for line in longest_lines])
 
 
 class Item(object):
