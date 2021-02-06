@@ -273,6 +273,8 @@ def download_row(row, language, prefix):
             try:
                 item = FilteredItem(Item(record.content_stream().read()))
                 if not item.filter_out:
+                    if item.to_detect == '':
+                        raise Exception('Empty item %s %s %s' % (item.filter_out, item.to_detect, url))
                     return language, item.to_detect
                 logging.info('\n')
             except Exception as e:
