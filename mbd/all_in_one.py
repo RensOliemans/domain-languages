@@ -283,6 +283,10 @@ def download_row(row, language, prefix):
         logging.info('Warc Error: %s', e)
         return
 
+def detect_lang(text):
+    if text != '':
+        return detect(text)
+
 
 def total(language, instance):
     logging.info('Starting with extracting gz files. language: %s, instance %s', language, instance)
@@ -337,7 +341,7 @@ def total(language, instance):
     # Convert in form, detect language and combine results
     rdd = df.rdd \
         .map(lambda row: download_row(row, language, prefix)).filter(bool) \
-        .map(lambda cl: (cl[0], detect(cl[1]))) \
+        .map(lambda cl: (cl[0], detect_lang(cl[1]))) \
         .map(lambda cl: (cl[0], {lang: 1 if lang == cl[1] else 0 for lang in total_languages})) \
         .reduceByKey(lambda a, b: {c: a[c] + b[c] for c in total_languages})
 
