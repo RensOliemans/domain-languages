@@ -284,6 +284,10 @@ def download_row(row, language, prefix):
         return
 
 
+def detect_lang(text):
+    return 'emtpy' if text == '' else detect(text)
+
+
 def total(language, instance):
     logging.info('Starting with extracting gz files. language: %s, instance %s', language, instance)
     relevant_files = MAPPING[instance][language]
@@ -329,7 +333,7 @@ def total(language, instance):
     prefix = 'https://commoncrawl.s3.amazonaws.com/'
 
     total_languages = ['bg', 'cs', 'de', 'el', 'en', 'es', 'fi', 'fr', 'hr', 'hu',
-                       'it', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sv', 'tr', 'uk']
+                       'it', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sv', 'tr', 'uk', 'empty']
 
     rdd2 = df.rdd.map(lambda row: '{}{} -- {} -- {}'.format(prefix, row.filename, row.offset, row.length))
     logging.critical('First 1000 results: %s', rdd2.take(1000))
@@ -337,7 +341,7 @@ def total(language, instance):
     # Convert in form, detect language and combine results
     rdd = df.rdd \
         .map(lambda row: download_row(row, language, prefix)).filter(bool) \
-        .map(lambda cl: (cl[0], detect(cl[1]))) \
+        .map(lambda cl: (cl[0], detect_lang(cl[1]))) \
         .map(lambda cl: (cl[0], {lang: 1 if lang == cl[1] else 0 for lang in total_languages})) \
         .reduceByKey(lambda a, b: {c: a[c] + b[c] for c in total_languages})
 
