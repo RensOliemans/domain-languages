@@ -283,9 +283,9 @@ def download_row(row, language, prefix):
         logging.info('Warc Error: %s', e)
         return
 
+
 def detect_lang(text):
-    if text != '':
-        return detect(text)
+    return 'emtpy' if text == '' else detect(text)
 
 
 def total(language, instance):
@@ -333,7 +333,7 @@ def total(language, instance):
     prefix = 'https://commoncrawl.s3.amazonaws.com/'
 
     total_languages = ['bg', 'cs', 'de', 'el', 'en', 'es', 'fi', 'fr', 'hr', 'hu',
-                       'it', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sv', 'tr', 'uk']
+                       'it', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sv', 'tr', 'uk', 'empty']
 
     rdd2 = df.rdd.map(lambda row: '{}{} -- {} -- {}'.format(prefix, row.filename, row.offset, row.length))
     logging.critical('First 1000 results: %s', rdd2.take(1000))
