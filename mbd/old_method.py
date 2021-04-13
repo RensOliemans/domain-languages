@@ -6,26 +6,26 @@ from warcio.archiveiterator import ArchiveIterator
 import requests
 from selectolax.parser import HTMLParser
 
-from pyspark import SparkContext
-from pyspark.sql import SparkSession, Row
-import pyspark.sql.functions as F
-from pyspark.sql.types import StringType
+# from pyspark import SparkContext
+# from pyspark.sql import SparkSession, Row
+# import pyspark.sql.functions as F
+# from pyspark.sql.types import StringType
 
 
 logging.basicConfig(level=logging.INFO)
 MIN_AMOUNT = 5
 MIN_LENGTH = 100
 APPNAME = 'Get WARCs'
-sc = SparkContext(appName=APPNAME)
-sc.setLogLevel('ERROR')
-spark = SparkSession.builder.appName(APPNAME).getOrCreate()
+# sc = SparkContext(appName=APPNAME)
+# sc.setLogLevel('ERROR')
+# spark = SparkSession.builder.appName(APPNAME).getOrCreate()
 
 
 def main(languages, instances):
     for language in languages:
         # First, download the .gz files. These will be stored on disk which can later be used to download the WARC files
         download_files(language, instances)
-    output(languages,  instances)
+    # output(languages,  instances)
 
 
 # ------------------------  DOWNLOADING .GZ FILES -----------------------
@@ -278,8 +278,8 @@ def strip_dq(entry):
     return entry
 
 
-udf_tld = F.udf(convert_to_tld, StringType())
-udf_strip_dq = F.udf(strip_dq, StringType())
+# udf_tld = F.udf(convert_to_tld, StringType())
+# udf_strip_dq = F.udf(strip_dq, StringType())
 
 
 MAPPING = {
@@ -468,7 +468,7 @@ class FilteredItem(ParsedItem):
         return self.parsed is None or any((f(self.parsed) for f in self.filters))
 
 
-main(['se', 'it', 'es', 'ru', 'gr', 'de', 'uk'], ['2020-50'])
+main(['se', 'it', 'es', 'ru', 'gr', 'de', 'uk', 'fr'], ['2017-47'])
 
 
 """

@@ -264,7 +264,6 @@ def download_row(row, language, prefix):
 
     headers = {"Range": "bytes={}-{}".format(offset, end)}
 
-    logging.info('Downloading file %s, range %s', url, headers)
     try:
         # Download WARC bestand voor dit specifieke domein
         resp = requests.get(url, headers=headers, stream=True)
@@ -276,7 +275,6 @@ def download_row(row, language, prefix):
                     if item.to_detect == '':
                         raise Exception('Empty item %s %s %s' % (item.filter_out, item.to_detect, url))
                     return language, item.to_detect
-                logging.info('\n')
             except Exception as e:
                 logging.debug('Skipping record %s, got exception %s', record, e)
     except Exception as e:
@@ -285,7 +283,10 @@ def download_row(row, language, prefix):
 
 
 def detect_lang(text):
-    return 'emtpy' if text == '' else detect(text)
+    try:
+        return detect(text)
+    except Exception:
+        return 'empty'
 
 
 def total(language, instance):
@@ -297,17 +298,19 @@ def total(language, instance):
     logging.info(files_to_read)
 
     # Load CSV
-    df = spark.read.csv('gzs/CC-MAIN-2020-50--cdx-00277.gz', sep=' ').repartition(100)
+    df = spark.read.csv(files_to_read, sep=' ').repartition(100)
 
     logging.info('Read files')
 
     # Take relevant columns and rename
+    # df.show()
     df = df.select('_c0', '_c13', '_c15', '_c17') \
         .withColumnRenamed('_c0', 'urlinfo') \
         .withColumnRenamed('_c13', 'length') \
         .withColumnRenamed('_c15', 'offset') \
         .withColumnRenamed('_c17', 'filename')
 
+    # df.show()
     # Filter null values
     df = df.na.drop()
 
@@ -326,9 +329,9 @@ def total(language, instance):
         .withColumnRenamed('urlinfo', 'tld')
 
     # Sample
-    # fraction = 0.0000000001
-    # logging.info('Using fraction: %s%%', fraction * 100)
-    # df = df.sample(fraction)
+    fraction = 0.01
+    logging.info('Using fraction: %s%%', fraction * 100)
+    df = df.sample(fraction)
 
     prefix = 'https://commoncrawl.s3.amazonaws.com/'
 
@@ -336,8 +339,6 @@ def total(language, instance):
                        'it', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sv', 'tr', 'uk', 'empty']
 
     rdd2 = df.rdd.map(lambda row: '{}{} -- {} -- {}'.format(prefix, row.filename, row.offset, row.length))
-    logging.critical('First 1000 results: %s', rdd2.take(1000))
-
     # Convert in form, detect language and combine results
     rdd = df.rdd \
         .map(lambda row: download_row(row, language, prefix)).filter(bool) \
@@ -349,13 +350,12 @@ def total(language, instance):
     logging.info('Getting results for country %s', language)
     results = rdd.collect()
     logging.critical('For country %s, results %s (%s rows)', language, results, len(results))
-    print('For country: %s, results: %s' % (language, results))
+    print('For country: %s, instance %s, results: %s' % (language, instance, results))
 
 
-instances = ['2020-50']
-languages = ['se', 'it', 'es', 'ru', 'gr', 'de', 'uk']
+languages = ['se', 'it', 'es', 'ru', 'gr', 'de', 'uk', 'fr']
 
-total('se', '2020-50')
+total('fr', '2017-47')
 
 # for instance in instances:
     # p = ThreadPool(8)
