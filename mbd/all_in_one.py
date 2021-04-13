@@ -4,12 +4,16 @@ from multiprocessing.pool import ThreadPool
 from warcio.archiveiterator import ArchiveIterator
 import requests
 from selectolax.parser import HTMLParser
-from langdetect import detect
+from langdetect import detect as detect2
 
 from pyspark import SparkContext
 from pyspark.sql import SparkSession, Row
 import pyspark.sql.functions as F
 from pyspark.sql.types import StringType
+import sparknlp
+from sparknlp.pretrained import PretrainedPipeline
+
+pipeline = PretrainedPipeline('detect_language_20', lang='xx')
 
 
 """
@@ -282,9 +286,16 @@ def download_row(row, language, prefix):
         return
 
 
+def detect(text):
+    try:
+        return pipeline.annotate(content)['language'][0]
+    except Exception:
+        return 'empty'
+
+
 def detect_lang(text):
     try:
-        return detect(text)
+        return detect2(text)
     except Exception:
         return 'empty'
 
@@ -329,7 +340,7 @@ def total(language, instance):
         .withColumnRenamed('urlinfo', 'tld')
 
     # Sample
-    fraction = 0.01
+    fraction = 0.000001
     logging.info('Using fraction: %s%%', fraction * 100)
     df = df.sample(fraction)
 
