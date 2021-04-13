@@ -10,10 +10,6 @@ from pyspark import SparkContext
 from pyspark.sql import SparkSession, Row
 import pyspark.sql.functions as F
 from pyspark.sql.types import StringType
-import sparknlp
-from sparknlp.pretrained import PretrainedPipeline
-
-pipeline = PretrainedPipeline('detect_language_20', lang='xx')
 
 
 """
@@ -21,10 +17,10 @@ Language detection of Common Crawl webpages with Spark.
 This file is big since with spark-submit you can only execute/pass 1 Python file.
 Approximate table of contents:
 
-32-39:   configuration
-41-157:  mapping
-159-231: helper functions/classes
-233-248: own UDF helper functions (from spark.sql.functions.UDF)
+32-38:   configuration
+43-156:  mapping : this maps countries+instance to downloaded CDX-index files (should be in hdfs: /user-dir/gzs/CC-MAIN-{instance}--cdx-{country}.gz etc)
+159-230: helper functions/classes
+233-247: own UDF helper functions (from spark.sql.functions.UDF)
 250-282: download_row, which gets a WARC file from the S3 server
 284-342: total function, this uses the CC cluster files and outputs the detected languages
          for a given language+instance (instance refers to a specific CC scrape, such as 2020-50)
@@ -305,6 +301,7 @@ def total(language, instance):
     relevant_files = MAPPING[instance][language]
 
     logging.info(relevant_files)
+    # These are the downloaded index files, each a bit less than 1G in size and have to be downloaded using get_index_files
     files_to_read = ['gzs/CC-MAIN-{}--cdx-{}.gz'.format(instance, i) for i in relevant_files]
     logging.info(files_to_read)
 
@@ -340,7 +337,7 @@ def total(language, instance):
         .withColumnRenamed('urlinfo', 'tld')
 
     # Sample
-    fraction = 0.000001
+    fraction = 0.01
     logging.info('Using fraction: %s%%', fraction * 100)
     df = df.sample(fraction)
 
