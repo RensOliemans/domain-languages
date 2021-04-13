@@ -22,9 +22,8 @@ Approximate table of contents:
 159-230: helper functions/classes
 233-247: own UDF helper functions (from spark.sql.functions.UDF)
 250-282: download_row, which gets a WARC file from the S3 server
-284-342: total function, this uses the CC cluster files and outputs the detected languages
-         for a given language+instance (instance refers to a specific CC scrape, such as 2020-50)
-344-352: actual running of code 
+284-361: total function, this basically combines everything. It reads the downloaded index files, downloads a warc (by calling download_row) and detects language
+         for a given tld+instance (instance refers to a specific CC scrape, such as 2020-50)
 
 """
 
@@ -354,19 +353,14 @@ def total(language, instance):
         .map(lambda cl: (cl[0], {lang: 1 if lang == cl[1] else 0 for lang in total_languages})) \
         .reduceByKey(lambda a, b: {c: a[c] + b[c] for c in total_languages})
 
-    # Collecting here is fine: these are the final results
+    # Collect() here is fine: these are the final results
     logging.info('Getting results for country %s', language)
     results = rdd.collect()
     logging.critical('For country %s, results %s (%s rows)', language, results, len(results))
     print('For country: %s, instance %s, results: %s' % (language, instance, results))
 
 
-languages = ['se', 'it', 'es', 'ru', 'gr', 'de', 'uk', 'fr']
+# languages = ['se', 'it', 'es', 'ru', 'gr', 'de', 'uk', 'fr']
 
+# Execute on a specific language and instance
 total('fr', '2017-47')
-
-# for instance in instances:
-    # p = ThreadPool(8)
-    # p.map(lambda l: total(l, instance), languages)
-    # p.close()
-    # p.join()
